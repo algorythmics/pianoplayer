@@ -1,0 +1,820 @@
+/* *******************************************************************
+ *
+ * ESCHER dsPIC-Board onboard Hardware  
+ *
+ * derived from and included in  HardwareProfile.h
+ *********************************************************************
+ * FileName:        escherBoard.c
+ * Dependencies:    escherBoard.h
+ * Processor:       dsPIC33F 80~Pin
+ *                  (tested on 33FJ128MC708)
+ * Compiler:        Microchip C30 v3.01 or higher
+ * Company:         Algorythmics
+ *
+ * License: GPL V3.0 
+ *
+ * Author              Date         Comment
+ *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ * Winfried Ritsch	   24.4.2010    seperated for rhea main
+ * Winfried Ritsch	   20.12.2010   adapted for escher lib
+ * Winfried Ritsch         1.2.2012     adapted for new OS
+ * Comment now:
+ * first tried on Explorer 16+PICTAIL, later escherBoard
+ *
+ * already worked with prototype Escher and Escher V1.0 (CC-By-NC-SA)
+ ********************************************************************/
+#include "HardwareProfile.h" // Include correct processor defs from compile arg
+
+// include here optional custom escherConfig.h
+// (dont know how to code this now, read more...) doc is here:
+/* --------------------- CONFIGURATIONS (doc) --------------------------- */
+/* Defines to configure this module before including this header          */
+/* should be done individually for each project                           */
+/* best use escher_config.h */
+
+//#define ESCHER_NO_OB_LEDS // no onboard leds (no init and animation)
+//#define ESCHER_NO_LP_OSC  // no secondary 32kHz Oscillator soldered/used
+//#define ESCHER_USE_WATCHDOG // use watchdog (default is no)
+//#define ESCHER_USE_ENC_RST // hardware which uses the RST Pin, NOT on escher
+/* ---------------------------------------------------------------------- */
+
+// escher Board Definitions
+#include "escherBoard.h"
+
+/* ============== Global Funcionts ====================================== */
+
+/*********************************************************************
+ * Function:        void escher_startup_osc(void)
+ * PreCondition:    None
+ * Side Effects:    started oszillator
+ *
+ * Overview:        startup OSC for default escher boards
+ *
+ * Note:            maybe not used since modules need own settings
+ ********************************************************************/
+void escher_startup_osc(void) {
+#if defined(ESCHER2_DEFAULT_CLOCK_SETTINGS)
+
+#if defined(dsPIC33E_SK_ENC624)
+    // Crank up the core frequency
+    PLLFBD = ESCHER_PLLFBD; /* M  = 38	*/
+    CLKDIVbits.PLLPOST = ESCHER_PLLPOST; /* N1 = 2	*/
+    CLKDIVbits.PLLPRE = ESCHER_PLLPRE; /* N2 = 2	*/
+    OSCTUN = ESCHER_OSCTUN;
+
+    /*	Initiate Clock Switch to Primary
+     *	Oscillator with PLL (NOSC= 0x3)*/
+    __builtin_write_OSCCONH(ESCHER_OSCCONH); // FRC w. PLL
+    __builtin_write_OSCCONL(ESCHER_OSCCONL); // as last 3 bits
+    // Disable Watch Dog Timer now, maybe enable when initialized
+    RCONbits.SWDTEN = 0;
+    while (OSCCONbits.COSC != ESCHER_OSCCONH_COSC); // 0b11
+    while (_LOCK == 0); /* Wait for PLL lock at 60 MIPS  ??? */
+
+#endif
+
+#elif defined(ESCHER1_DEFAULT_CLOCK_SETTINGS)
+
+    // Crank up the core frequency
+    PLLFBD = ESCHER_PLLFBD; /* M  = 38	*/
+    CLKDIVbits.PLLPOST = ESCHER_PLLPOST; /* N1 = 2	*/
+    CLKDIVbits.PLLPRE = ESCHER_PLLPRE; /* N2 = 2	*/
+    OSCTUN = ESCHER_OSCTUN;
+    
+    __builtin_write_OSCCONH(ESCHER_OSCCONH);
+    __builtin_write_OSCCONL(ESCHER_OSCCONL);
+
+    // Wait for new Oscillator w/ PLL
+    while (OSCCONbits.COSC != ESCHER_OSCCONH);
+    // Wait for Pll to Lock
+    while (OSCCONbits.LOCK != 0b1);
+
+#endif
+}
+/*********************************************************************
+ * Function:        void escher_init(void)
+ * PreCondition:    None
+ * Side Effects:    initialized IOs to default state start oszillator
+ *
+ * Overview:        Initialize board specific hardware.
+ *
+ * Note:            None
+ ********************************************************************/
+
+void escher_init(void) {
+
+#if(!defined(ESCHER_NO_OB_LEDS))
+    // --- First animate LEDs with default speed (see config bits, mostly FRC
+
+    // On Board LEDs are outs, should be default, but on debug...
+    OB_LED0_TRIS = OB_LED1_TRIS = OB_LED2_TRIS = OB_LED3_TRIS = PORT_TRIS_OUT;
+    // IO function test LEDS ON->OFF, timing to slow ?
+#endif
+
+    // Disable Watch Dog Timer during switching (also in configbits)
+    RCONbits.SWDTEN = 0;
+
+    // Crank up the core frequency
+    // Note: not  stable on ICD debug mode on MPLAB-X (dont know why)
+    escher_startup_osc();
+    escher_animate_leds();
+
+#if(defined(ESCHER_USE_WATCHDOG))
+    // Enable watch dog timer
+    RCONbits.SWDTEN = 1;
+#endif
+
+#if(!defined(ESCHER_NO_OB_LEDS))
+    /* with higher speed probaly 100ms */
+    escher_animate_leds();
+#endif
+
+#if defined(ESCHER1_BOARD)
+    escher_init_enc60_spi(); // to be written, but empty by now
+#elif defined(dsPIC33E_SK_ENC624)
+    escher_init_enc624_psp5();
+#else
+#warning "No Ethernet Hardware to initialize"
+#endif
+    
+}
+
+/* ******* Helpers for on board parts ******* */
+// for visual feedback of init steps
+// Note: delays can be defined in another lib like TCP/IP Stack
+
+/*********************************************************************
+ * Function:        void escher_animate_leds(void)
+ *
+ * PreCondition:    Init Escher board
+ * Side Effects:    LEDS are off afterwards
+ *
+ * Overview: for startup an animation and LED Test.
+ *           if timer and OSC is set correct  it should done in one second
+ *           else it should be be slower
+ *
+ * Note:    see delay definitions below
+ ********************************************************************/
+
+void escher_animate_leds() {
+
+    // first all LED on
+    escher_led0();
+    escher_led1();
+    escher_led2();
+    escher_led3();
+
+    // then off again in a row
+    escher_delay_ms(250);
+    escher_unled0();
+    escher_delay_ms(250);
+    escher_unled1();
+    escher_delay_ms(250);
+    escher_unled2();
+    escher_delay_ms(250);
+    escher_unled3();
+    return;
+}
+
+/*********************************************************************
+ * Function:        void port_initouts(ports)
+ *
+ * Arguments: portnr is 0,1,2,3,... for the ports, -1 means all
+ *
+ * PreCondition:    Init Escher board
+ * Side Effects:    I/Os are defined as in or outs
+ *
+ * Overview:        set desired outputs with port nr
+ * 
+ *                  Init all PINs on Port to outs with -1 (eg.:testhardware)
+ * NOTE: no range checking
+ * TODO: optimize to one case statement, implement -1
+ ********************************************************************/
+
+void port_init(unsigned char portnr, unsigned char inout) {
+
+#if defined (ESCHER_HW_ESCHER1)
+
+    if (portnr < 28)
+        switch (portnr) {
+            case 0: P0_IO0_TRIS = inout;
+                return;
+            case 1: P0_IO1_TRIS = inout;
+                return;
+            case 2: P0_IO2_TRIS = inout;
+                return;
+            case 3: P0_IO3_TRIS = inout;
+                return;
+            case 4: P0_IO4_TRIS = inout;
+                return;
+            case 5: P0_IO5_TRIS = inout;
+                return;
+            case 6: P0_IO6_TRIS = inout;
+                return;
+            case 7: P0_IO7_TRIS = inout;
+                return;
+            case 8: P0_IO8_TRIS = inout;
+                return;
+            case 9: P0_IO9_TRIS = inout;
+                return;
+            case 10: P0_IO10_TRIS = inout;
+                return;
+            case 11: P0_IO11_TRIS = inout;
+                return;
+            case 12: P0_IO12_TRIS = inout;
+                return;
+            case 13: P0_IO13_TRIS = inout;
+                return;
+            case 14: P0_IO14_TRIS = inout;
+                return;
+            case 15: P0_IO15_TRIS = inout;
+                return;
+            case 16: P0_IO16_TRIS = inout;
+                return;
+            case 17: P0_IO17_TRIS = inout;
+                return;
+            case 18: P0_IO18_TRIS = inout;
+                return;
+            case 19: P0_IO19_TRIS = inout;
+                return;
+            case 20: P0_IO20_TRIS = inout;
+                return;
+            case 21: P0_IO21_TRIS = inout;
+                return;
+            case 22: P0_IO22_TRIS = inout;
+                return;
+            case 23: P0_IO23_TRIS = inout;
+                return;
+            case 24: P0_IO24_TRIS = inout;
+                return;
+            case 25: P0_IO25_TRIS = inout;
+                return;
+            case 26: P0_IO26_TRIS = inout;
+                return;
+            case 27: P0_IO27_TRIS = inout;
+                return;
+        }
+    portnr -= 28;
+
+    if (portnr < 28) switch (portnr) {
+            case 0: P1_IO0_TRIS = inout;
+                return;
+            case 1: P1_IO1_TRIS = inout;
+                return;
+            case 2: P1_IO2_TRIS = inout;
+                return;
+            case 3: P1_IO3_TRIS = inout;
+                return;
+            case 4: P1_IO4_TRIS = inout;
+                return;
+            case 5: P1_IO5_TRIS = inout;
+                return;
+            case 6: P1_IO6_TRIS = inout;
+                return;
+            case 7: P1_IO7_TRIS = inout;
+                return;
+            case 8: P1_IO8_TRIS = inout;
+                return;
+            case 9: P1_IO9_TRIS = inout;
+                return;
+            case 10: P1_IO10_TRIS = inout;
+                return;
+            case 11: P1_IO11_TRIS = inout;
+                return;
+            case 12: P1_IO12_TRIS = inout;
+                return;
+            case 13: P1_IO13_TRIS = inout;
+                return;
+            case 14: P1_IO14_TRIS = inout;
+                return;
+            case 15: P1_IO15_TRIS = inout;
+                return;
+            case 16: P1_IO16_TRIS = inout;
+                return;
+            case 17: P1_IO17_TRIS = inout;
+                return;
+            case 18: P1_IO18_TRIS = inout;
+                return;
+            case 19: P1_IO19_TRIS = inout;
+                return;
+            case 20: P1_IO20_TRIS = inout;
+                return;
+            case 21: P1_IO21_TRIS = inout;
+                return;
+            case 22: P1_IO22_TRIS = inout;
+                return;
+            case 23: P1_IO23_TRIS = inout;
+                return;
+            case 24: P1_IO24_TRIS = inout;
+                return;
+            case 25: P1_IO25_TRIS = inout;
+                return;
+            case 26: P1_IO26_TRIS = inout;
+                return;
+            case 27: P1_IO27_TRIS = inout;
+                return;
+        }
+    portnr -= 28;
+
+    if (portnr < 12) switch (portnr) {
+            case 0: P2_IO0_TRIS = inout;
+                return;
+            case 1: P2_IO1_TRIS = inout;
+                return;
+            case 2: P2_IO2_TRIS = inout;
+                return;
+            case 3: P2_IO3_TRIS = inout;
+                return;
+            case 4: P2_IO4_TRIS = inout;
+                return;
+            case 5: P2_IO5_TRIS = inout;
+                return;
+            case 6: P2_IO6_TRIS = inout;
+                return;
+            case 7: P2_IO7_TRIS = inout;
+                return;
+            case 8: P2_IO8_TRIS = inout;
+                return;
+            case 9: P2_IO9_TRIS = inout;
+                return;
+            case 10: P2_IO10_TRIS = inout;
+                return;
+            case 11: P2_IO11_TRIS = inout;
+                return;
+        }
+    portnr -= 12;
+
+    if (portnr < 6) switch (portnr) {
+            case 0: P2_IO0_TRIS = inout;
+                return;
+            case 1: P2_IO1_TRIS = inout;
+                return;
+            case 2: P2_IO2_TRIS = inout;
+                return;
+            case 3: P2_IO3_TRIS = inout;
+                return;
+            case 4: P2_IO4_TRIS = inout;
+                return;
+            case 5: P2_IO5_TRIS = inout;
+                return;
+        }
+#elif defined(ESCHER_HW_dsPIC33E_SK)
+
+#endif
+    return;
+}
+
+/*********************************************************************
+ * Function: void escher_port_set(portnr,state)
+ *
+ * Arguments: portnr is 0,1,2,3 for the ports, -1 means all
+ *
+ * PreCondition:    Init Escher board
+ * Side Effects:    LEDS are off afterwards
+ *
+ * Overview:        Init all PINs on Port to outs
+ *
+ * Note:            for check escher board
+ ********************************************************************/
+
+void escher_port_set(unsigned char portnr, unsigned char state) {
+
+       #if defined (ESCHER_HW_ESCHER1)
+
+    if (portnr < 28) switch (portnr) {
+            case 0: P0_IO0 = state;
+                return;
+            case 1: P0_IO1 = state;
+                return;
+            case 2: P0_IO2 = state;
+                return;
+            case 3: P0_IO3 = state;
+                return;
+            case 4: P0_IO4 = state;
+                return;
+            case 5: P0_IO5 = state;
+                return;
+            case 6: P0_IO6 = state;
+                return;
+            case 7: P0_IO7 = state;
+                return;
+            case 8: P0_IO8 = state;
+                return;
+            case 9: P0_IO9 = state;
+                return;
+            case 10: P0_IO10 = state;
+                return;
+            case 11: P0_IO11 = state;
+                return;
+            case 12: P0_IO12 = state;
+                return;
+            case 13: P0_IO13 = state;
+                return;
+            case 14: P0_IO14 = state;
+                return;
+            case 15: P0_IO15 = state;
+                return;
+            case 16: P0_IO16 = state;
+                return;
+            case 17: P0_IO17 = state;
+                return;
+            case 18: P0_IO18 = state;
+                return;
+            case 19: P0_IO19 = state;
+                return;
+            case 20: P0_IO20 = state;
+                return;
+            case 21: P0_IO21 = state;
+                return;
+            case 22: P0_IO22 = state;
+                return;
+            case 23: P0_IO23 = state;
+                return;
+            case 24: P0_IO24 = state;
+                return;
+            case 25: P0_IO25 = state;
+                return;
+            case 26: P0_IO26 = state;
+                return;
+            case 27: P0_IO27 = state;
+                return;
+        }
+    portnr -= 28;
+
+    if (portnr < 28) switch (portnr) {
+            case 0: P1_IO0 = state;
+                return;
+            case 1: P1_IO1 = state;
+                return;
+            case 2: P1_IO2 = state;
+                return;
+            case 3: P1_IO3 = state;
+                return;
+            case 4: P1_IO4 = state;
+                return;
+            case 5: P1_IO5 = state;
+                return;
+            case 6: P1_IO6 = state;
+                return;
+            case 7: P1_IO7 = state;
+                return;
+            case 8: P1_IO8 = state;
+                return;
+            case 9: P1_IO9 = state;
+                return;
+            case 10: P1_IO10 = state;
+                return;
+            case 11: P1_IO11 = state;
+                return;
+            case 12: P1_IO12 = state;
+                return;
+            case 13: P1_IO13 = state;
+                return;
+            case 14: P1_IO14 = state;
+                return;
+            case 15: P1_IO15 = state;
+                return;
+            case 16: P1_IO16 = state;
+                return;
+            case 17: P1_IO17 = state;
+                return;
+            case 18: P1_IO18 = state;
+                return;
+            case 19: P1_IO19 = state;
+                return;
+            case 20: P1_IO20 = state;
+                return;
+            case 21: P1_IO21 = state;
+                return;
+            case 22: P1_IO22 = state;
+                return;
+            case 23: P1_IO23 = state;
+                return;
+            case 24: P1_IO24 = state;
+                return;
+            case 25: P1_IO25 = state;
+                return;
+            case 26: P1_IO26 = state;
+                return;
+            case 27: P1_IO27 = state;
+                return;
+        }
+    portnr -= 28;
+
+    if (portnr < 12) switch (portnr) {
+            case 0: P2_IO0 = state;
+                return;
+            case 1: P2_IO1 = state;
+                return;
+            case 2: P2_IO2 = state;
+                return;
+            case 3: P2_IO3 = state;
+                return;
+            case 4: P2_IO4 = state;
+                return;
+            case 5: P2_IO5 = state;
+                return;
+            case 6: P2_IO6 = state;
+                return;
+            case 7: P2_IO7 = state;
+                return;
+            case 8: P2_IO8 = state;
+                return;
+            case 9: P2_IO9 = state;
+                return;
+            case 10: P2_IO10 = state;
+                return;
+            case 11: P2_IO11 = state;
+                return;
+        }
+    portnr -= 12;
+
+    if (portnr < 6) switch (portnr) {
+            case 0: P2_IO0 = state;
+                return;
+            case 1: P2_IO1 = state;
+                return;
+            case 2: P2_IO2 = state;
+                return;
+            case 3: P2_IO3 = state;
+                return;
+            case 4: P2_IO4 = state;
+                return;
+            case 5: P2_IO5 = state;
+                return;
+        }
+#endif
+    return;
+}
+
+
+/* ********************* Initialize the Ethernet Hardware *************   */
+
+/*********************************************************************
+ * Function:        void escher_init_enc6ß_spi()
+ *
+ * Arguments:   none
+ *
+ * PreCondition:    generell Init Escher board
+ * Side Effects:    Pins for ethernet interface is not available for other
+ *                  apps
+ *
+ * Overview:        for initialization of ethernet ENC60 hardware
+ *
+ * Note: for escher boards: derived from microchip TCP/IP stack Demo
+ *  ********************************************************************/
+
+void escher_init_enc60_spi() {
+    // the only code which could be relevant found
+    #if defined(ENC_CS_TRIS)
+	ENC_CS_IO = 1;
+	ENC_CS_TRIS = 0;
+     #endif
+}
+
+/*********************************************************************
+ * Function:        void escher_init_enc624_psp5()
+ *
+ * Arguments:   none
+ *
+ * PreCondition:    generell Init Escher board
+ * Side Effects:    Pins for ethernet interface is not available for other
+ *                  apps
+ *
+ * Overview:        for initialization of ethernet hardware
+ *
+ * Note: for escher boards: derived from microchip TCP/IP stack Demo
+ *  ********************************************************************/
+
+
+void escher_init_enc624_psp5() {
+#if defined(__18CXX)
+    // Enable 4x/5x/96MHz PLL on PIC18F87J10, PIC18F97J60, PIC18F87J50, etc.
+    OSCTUNE = 0x40;
+
+
+#else	// 16-bit C30 and and 32-bit C32
+#if defined(__PIC32MX__)
+    {
+        // Enable multi-vectored interrupts
+        INTEnableSystemMultiVectoredInt();
+
+        // Enable optimal performance
+        SYSTEMConfigPerformance(GetSystemClock());
+        mOSCSetPBDIV(OSC_PB_DIV_1); // Use 1:1 CPU Core:Peripheral clocks
+
+        // Disable JTAG port so we get our I/O pins back, but first
+        // wait 50ms so if you want to reprogram the part with
+        // JTAG, you'll still have a tiny window before JTAG goes away.
+        // The PIC32 Starter Kit debuggers use JTAG and therefore must not
+        // disable JTAG.
+        DelayMs(50);
+#if !defined(__MPLAB_DEBUGGER_PIC32MXSK) && !defined(__MPLAB_DEBUGGER_FS2)
+        DDPCONbits.JTAGEN = 0;
+#endif
+
+        CNPUESET = 0x00098000;
+        // Turn on weak pull ups on CN15, CN16, CN19 (RD5, RD7, RD13),
+        // which is connected to buttons on PIC32 Starter Kit boards
+    }
+#endif
+
+#if defined(__dsPIC33F__) || defined(__PIC24H__)
+
+    // nothing special
+
+#elif defined(__dsPIC33E__)||defined(__PIC24E__)
+
+#if defined ENC100_INTERFACE_MODE > 0
+    // Make these PMP pins as digital output when the interface is parallel.
+    ANSELEbits.ANSE0 = 0;
+    ANSELEbits.ANSE1 = 0;
+    ANSELEbits.ANSE2 = 0;
+    ANSELEbits.ANSE3 = 0;
+    ANSELEbits.ANSE4 = 0;
+    ANSELEbits.ANSE5 = 0;
+    ANSELEbits.ANSE6 = 0;
+    ANSELEbits.ANSE7 = 0;
+    ANSELBbits.ANSB10 = 0;
+    ANSELBbits.ANSB11 = 0;
+    ANSELBbits.ANSB12 = 0;
+    ANSELBbits.ANSB13 = 0;
+    ANSELBbits.ANSB15 = 0;
+#endif
+
+    //ANSELEbits.ANSE8= 0 ;    // Make RE8(INT1) a digital input for ZeroG ZG2100M PICtail
+
+    //		AD1CHS0 = 0;		     // Input to AN0 (potentiometer)
+    //		ANSELBbits.ANSB0= 1;     // Input to AN0 (potentiometer)
+    //		ANSELBbits.ANSB5= 1;     // Disable digital input on AN5 (potentiometer)
+    //		ANSELBbits.ANSB4= 1;     // Disable digital input on AN4 (TC1047A temp sensor)
+    //
+    //		ANSELDbits.ANSD7 =0;     //  Digital Pin Selection for S3(Pin 83) and S4(pin 84).
+    //		ANSELDbits.ANSD6 =0;
+
+    //		ANSELGbits.ANSG6 =0;     // Enable Digital input for RG6 (SCK2)
+    //		ANSELGbits.ANSG7 =0;     // Enable Digital input for RG7 (SDI2)
+    //		ANSELGbits.ANSG8 =0;     // Enable Digital input for RG8 (SDO2)
+    //		ANSELGbits.ANSG9 =0;     // Enable Digital input for RG9 (CS)
+
+#if defined ENC100_INTERFACE_MODE == 0	// SPI Interface, UART can be used for debugging. Not allowed for other interfaces.
+    RPOR9 = 0x0300; //RP101= U2TX
+    RPINR19 = 0X0064; //RP100= U2RX
+#endif
+
+#if defined WF_CS_TRIS
+    RPINR1bits.INT3R = 30;
+    WF_CS_IO = 1;
+    WF_CS_TRIS = 0;
+
+#endif
+
+#else	//defined(__PIC24F__) || defined(__PIC32MX__)
+
+
+    //	// ADC
+    //	AD1CON1 = 0x84E4;			// Turn on, auto sample start, auto-convert, 12 bit mode (on parts with a 12bit A/D)
+    //	AD1CON2 = 0x0404;			// AVdd, AVss, int every 2 conversions, MUXA only, scan
+    //	AD1CON3 = 0x1003;			// 16 Tad auto-sample, Tad = 3*Tcy
+    //#if defined(__32MX460F512L__) || defined(__32MX795F512L__)	// PIC32MX460F512L and PIC32MX795F512L PIMs has different pinout to accomodate USB module
+    //        AD1CSSL = 1 << 2; // Scan pot
+    //#else
+    //        AD1CSSL = 1 << 5; // Scan pot
+    //#endif
+
+#endif
+#endif
+
+// Deassert all chip select lines so there isn't any problem with
+// initialization order.  Ex: When ENC28J60 is on SPI2 with Explorer 16,
+// MAX3232 ROUT2 pin will drive RF12/U2CTS ENC28J60 CS line asserted,
+// preventing proper 25LC256 EEPROM operation.
+#if defined(ENC_CS_TRIS)
+	ENC_CS_IO = 1;
+	ENC_CS_TRIS = 0;
+#endif
+#if defined(ENC100_CS_TRIS)
+	ENC100_CS_IO = (ENC100_INTERFACE_MODE == 0);
+	ENC100_CS_TRIS = 0;
+#endif
+#if defined(WF_CS_TRIS)
+	WF_CS_IO = 1;
+	WF_CS_TRIS = 0;
+#endif
+}
+
+
+/*********************************************************************
+ * Function:        void escher_delay_ticks(ESCHER_TICK ticks)
+ *                  void escher_delay_ms(int count)
+ *                  void escher_delay_10us(int count)
+ *
+ * Arguments:  dwCountcount of units
+ *
+ * PreCondition:    Init Escher board
+ * Side Effects:    Maybe also defined more accurate or efficient in some
+ *                  other library
+ *
+ * Overview:        for initialisation and LED tests and helper function
+ *
+ * Note:            for check escher board, derived from microchip TCP/IP stack
+ *       since done in loops, interrupts may make it unprecise
+ *       use timer function for more precise delays.
+ *  ********************************************************************/
+
+
+#if ! defined(ESCHER_DELAY_USE_TCPIPSTACK)
+
+#if defined(ESCHER_DELAY_USE_TICK)
+#include "escherRTC.h"
+
+void escher_delay_ticks(ESCHER_TICK ticks) {
+    ESCHER_TICK t,tt,nt;
+    unsigned long long wt;
+
+    t = TickGet();
+    // wt = t + (DWORD) ms * (ESCHER_TICKS_PER_SECOND / 1000ul);
+
+    wt = (unsigned long long) t + (unsigned long long) ticks;
+    // on overflow
+    while(wt > (unsigned long long) ESCHER_TICK_MAX)
+        wt -= ESCHER_TICK_MAX;
+
+    if(wt < t)
+    { // wait for Tick to overflow
+        while (TickGet() > t);
+        t = 0ul;
+    }
+
+    nt = wt;
+    while (1) {
+        tt = TickGet();
+
+        // if Tick overflows just now, we over time
+        if(tt<t)
+            return;
+        // break if time is reached
+        if (tt >= nt)
+            return;
+        }
+}
+
+void escher_delay_ms(WORD ms) {
+    ESCHER_TICK ticks;
+
+    ticks = escher_ms_to_ticks((ESCHER_TICK) ms);
+    escher_delay_ticks(ticks);
+}
+#else
+void escher_delay_ms(int ms) {
+    unsigned char i;
+    while (ms--) {
+        i = 4;
+        while (i--) {
+            escher_delay_10us(25);
+        }
+    }
+}
+#endif
+#endif
+// since on TICKS_PER_SECOND is to small for 10us musst be more than 1000000
+// we cant use it for Realtimeclock 32KHz
+// on 40MIPS: 156 250,5 ->  1,56 (so take smaller which is 1)
+#if (ESCHER_TICKS_PER_SECOND <= 100000ul)
+
+#warning  Delay10us: maybe inacurate since to TIMER to SLOW
+// && !defined(ESCHER_CLOCK32KHZ)
+#endif
+
+void escher_delay_10us(int time10us) {
+
+    volatile int _dcnt;
+
+#if defined(ESCHER_DELAY10US_USE_TICK)
+
+    ESCHER_TICK ticks;
+
+    // operation can need up to 5us so wie reduce with that
+    ticks = (((ESCHER_TICK) (2*time10us-1) * (ESCHER_TICK) ESCHER_TICKS_PER_SECOND) / 200000ul);
+
+    // if us not to small to measure by TIMER
+    if (ticks >= 1) {
+
+        escher_delay_ticks(ticks);
+        return;
+
+    } else {
+#endif
+        // use Instruction loop to measures, (inacurate since Interrupts)
+        _dcnt = time10us * ((int) (0.00001 / (1.0 / GetInstructionClock()) / 10));
+        while (_dcnt--) {
+#if defined(__C32__)
+            Nop();
+            Nop();
+            Nop();
+#endif
+        }
+#if defined(ESCHER_DELAY10US_USE_TICK)
+    }
+#endif
+}

@@ -1,0 +1,37 @@
+Stückliste exportiert aus ALGO_dsPIC.sch am  7/11/2008 19:14:14 
+
+Menge Wert              Device            Bauteile                                                
+1                       31-XX             S1                                                      
+5                       LEDSMT1206        LED1, LED2, LED3, LED4, LED5                            
+1                       PINHD-1X2         LEDS                                                    
+3                       PINHD-1X3         JP1, JP2, VSOURCE                                       
+1                       PINHD-2X5         SPI                                                     
+1                       PINHD-2X8         JP6                                                     
+2                       PINHD-2X22        JP3, JP4                                                
+1                       WE-CBF_1210       L2                                                      
+13    .1u               C-EUC0805         C1, C2, C3, C4, C5, C6, C7, C13, C15, C22, C23, C24, C25
+2     1M                R-EU_M0805        R4, R13                                                 
+1     1N5400            1N5400            D1                                                      
+2     1k                R-EU_M0805        R2, R24                                                 
+3     1u                C-EUC0805         C9, C10, C11                                            
+1     2k32+/-1%         R-EU_M1206        R6                                                      
+2     4k7               R-EU_M0805        R1, R23                                                 
+2     10p               C-EUC0805         C19, C20                                                
+2     10u               C-EUC0805         C26, C29                                                
+2     18p               C-EUC0805         C17, C18                                                
+1     25MHz             CRYSTALHC49UP     Q1                                                      
+2     47k               R-EU_M0805        R19, R20                                                
+3     47u               CPOL-EUE          C8, C14, C16                                            
+4     49k9 +/-1%        R-EU_M0805        R7, R8, R9, R10                                         
+1     100R              R-EU_M0805        R3                                                      
+9     470R              R-EU_M0805        R11, R12, R14, R15, R16, R17, R18, R21, R22             
+1     32768Hz           CRYSTALTC26V      Q2                                                      
+1     AMPHENOL_RJ45JACK AMPHENOL_RJ45JACK X1                                                      
+1     DSPIC33FJXXXMC708 DSPIC33FJXXXMC708 U3                                                      
+1     ENC28J60          ENC28J60          U1                                                      
+1     FPS009-3001       FPS009-3001       X3                                                      
+1     ICD2              ICD2              ICD2                                                    
+1     LD1085D2PAK       LD1085D2PAK       U2                                                      
+1     LD1085TO220S      LD1085TO220S      U4                                                      
+1     NEB25R            NEB25R            X2                                                      
+3     PTR1PAD1-17       PTR1PAD1-17       3V3, 5V5, GND                                           

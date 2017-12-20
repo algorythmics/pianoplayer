@@ -1,0 +1,37 @@
+MAC-ADDRESSES for ESCHER DSP.
+
+
+MAC-Addresses have to be assigned by programming with tcp/ip stack or other 
+software using the ethernet port on ESCHER DSP board.
+
+Since they have to be unique and we have no vendor tag we choose
+localy assigned addresses with the schema below.
+
+(see mac_address_tutorial_ieee.pdf for discussion on these issue).
+
+Since our board get a handwritten Serie-Number, we use these as distinguisher:
+
+Locally managed MAC addresses with individuell target means second least significant bit to be set
+and least significant bit to be 0 on the most significant Byte.
+
+Algorytmics choOses: 
+
+  HEX: 02-00-00-nn-nn-nn
+where nn-nn-nn is the serial number in HEX.
+
+(Note first prototype board was 00, second burned one 01)
+
+eg. 
+  First board of Serie 1:  02-00-00-00-00-01  (15 are produced)
+  We asume not more then 65535 are produced on one serie ;-)))
+
+
+Serie		| Number of boards	| Range
+--------------------------------------------------------------------------
+Prototype	|                2	| 02-00-00-00-00-01 .. 02-00-00-00-00-02
+Serie One	|		15	| 02-00-00-01-00-01 .. 02-00-00-01-00-0F
+Serie Two	| to be done ....
+
+If you produce a serie please let me know an write serial number on it
+
+algorythmics 2008.

@@ -1,0 +1,27 @@
+Schaltung handgebaut im Klavierelektronikkasten.
+
+je ein Relais für Oktave und Stromspannung (je 20A)
+
+Eigene Verorgung für relaisanzug !
+
+12 V (140mA x 12) =  1,6A
+
+Acht Schalter (oder sieben erste ausbauphase)
+
+Beschaltung:    rot für  V++ 30V
+                blau für V+ 10V (Haltemoment)
+
+Steuerleitung: 
+
+ je ein Paar pro relais:
+
+okt.8 V+V++: blau/weiss - schwarz :  
+okt.7 V+V++: blau/weiss - braun   :  
+okt.6 V+V++: blau/weiss - gruen
+okt.5 V+V++: blau/weiss - blau
+unbelegt   : blau/weiss - gelb
+okt.4 V+V++: gelb/weiss - schwarz
+okt.3 V+V++: gelb/weiss - braun
+okt.2 V+V++: gelb/weiss - gruen
+okt.1 V+V++: gelb/weiss - blau
+unbelegt   : gelb/weiss - gelb

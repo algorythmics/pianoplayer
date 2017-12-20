@@ -1,0 +1,26 @@
+Tests für enhanced voltage
+--------------------------
+
+For rhea player to get maximum velocity on some pianos a harder stroke is needed.
+Therefore the FET16 must be expanded from 30V maximum to 48V or more.
+
+One idea is to exchange the FET on the board. Note also the condensors with a lower Volatage limit has to be choosen.
+
+           max Volatage    max ID cont  max ID pulsed
+RSR030N06   60V             3A           16A
+RTR040N03   30V             4A           16A
+
+Notes tested for maximum hearable velocity and attack-times:
+
+MIDInr    30V    35V  40V   45V   48V
+ 67      30 ms  28ms  25ms  25ms  25ms
+
+ 36      25 
+ 93
+
+30V FET RTR040N03
+ measured slope: 150ns up 100ns down on 30V
+ 
+60V FET RSR030N06
+ measured slope:
+

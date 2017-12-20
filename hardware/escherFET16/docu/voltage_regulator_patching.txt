@@ -1,0 +1,61 @@
+escherFET voltage regulator LD1085V5 on high loads
+==================================================
+
+(we used STThompson products)
+
+Needed supply is for ZXGD3002E6 FET driver. Since specification they need 0,1A each for full switching 
+fequency and therfore 1,6 A for all parallel. (note using a capacitor between Gnd at Vdd Pad helps)
+
+Info: We use FET switching at 2.5V and driving with 0,4V low and 3V high, and used 5V for power supply for FET driver.
+
+
+Max Temperature Calculation
+---------------------------
+
+P_max (max power allowed) = (Max. junction temp. (°C) – Max. ambient temp. (°C))/ (TOS JA (°C/W) + Junction to case (°C/W))
+
+for LD1085 with TO220 package we have R_thj-case = 3 °C/W and R_thj_amb = 50 °C/W.
+
+We calculate for max ambient temperature 50°C, since we are heated by the solenoids (up to 70 °C).
+
+
+without heat sink
+.................
+
+P_max = (125°C – 50°C) / (50°C/W + 3°C/W) = 1,4W 
+
+
+calm usage: U_in = 9V U=9V-5V=4V => I_max=0,35A
+
+max usage: U_in = 30V U=30V-5V=25V => I_max=0.056A
+
+
+with heat sink
+..............
+
+P_thj_heatsink = 14 °C/W on TO220 (large heat sink !)
+
+P_max = (125°C – 50°C) / (14°C/W + 3°C/W) = 4,4W ... Uin=9V U=9V-5V=4V => 1.1A
+
+Note this is if supply of Regulator is 9V !
+
+
+conclusion
+..........
+
+If the board is driven at max. 30V for FETs, which means then an additional extra powersupply for 
+the voltage regulator is needed and this patch could be applied:
+
+Usage without regulator
+-----------------------
+
+Just dont solder the regulator in and use the V_DD Pad for supplying the FET drivers ZXGD3002E6.
+
+
+Patch for usage with regulator
+------------------------------
+
+On bottom layer there is one big  PCB track (conductor path) from front to the regulator: cut this.
+Afterwards on the V_IN pads you can add the additional supply which should be > 6,6V but not much higer.
+I used 7V for minimum power dissipation at maximum speed for 3,2 Watt with heat sink.
+

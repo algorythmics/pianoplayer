@@ -1,0 +1,139 @@
+Partlist
+
+Exported from algo_fet16.brd at 10.08.16 11:42
+
+EAGLE Version 7.6.0 Copyright (c) 1988-2016 CadSoft
+
+Assembly variant: 
+
+Part     Value          Package      Library    Position (mm)         Orientation
+
+C1       .1u            C0805        rcl        (9.271 47.4345)       R90
+C2       47u            PANASONIC_E  rcl        (9.144 38.6715)       R90
+C3       .1u            C0805        rcl        (11.4935 67.6275)     R90
+C4       47u            PANASONIC_E  rcl        (11.43 58.801)        R90
+C5       .1u            C0805        rcl        (13.97 44.45)         R270
+C6       .1u            C0805        rcl        (19.05 44.45)         R270
+C7       .1u            C0805        rcl        (24.13 44.45)         R270
+C8       .1u            C0805        rcl        (29.21 44.45)         R270
+C9       .1u            C0805        rcl        (34.29 44.45)         R270
+C10      .1u            C0805        rcl        (39.37 44.45)         R270
+C11      .1u            C0805        rcl        (44.45 44.45)         R270
+C12      .1u            C0805        rcl        (49.53 44.45)         R270
+C13      .1u            C0805        rcl        (54.61 44.45)         R270
+C14      .1u            C0805        rcl        (59.69 44.45)         R270
+C15      .1u            C0805        rcl        (64.77 44.45)         R270
+C16      .1u            C0805        rcl        (69.85 44.45)         R270
+C17      .1u            C0805        rcl        (74.93 44.45)         R270
+C18      .1u            C0805        rcl        (80.01 44.45)         R270
+C19      .1u            C0805        rcl        (85.09 44.45)         R270
+C20      .1u            C0805        rcl        (90.17 44.45)         R270
+D2                      DO214AC      diode      (15.24 33.02)         R90
+D3                      DO214AC      diode      (20.32 33.02)         R90
+D4                      DO214AC      diode      (25.4 33.02)          R90
+D5                      DO214AC      diode      (30.48 33.02)         R90
+D6                      DO214AC      diode      (35.56 33.02)         R90
+D7                      DO214AC      diode      (40.64 33.02)         R90
+D8                      DO214AC      diode      (45.72 33.02)         R90
+D9                      DO214AC      diode      (50.8 33.02)          R90
+D10                     DO214AC      diode      (55.88 33.02)         R90
+D11                     DO214AC      diode      (60.96 33.02)         R90
+D12                     DO214AC      diode      (66.04 33.02)         R90
+D13                     DO214AC      diode      (71.12 33.02)         R90
+D14                     DO214AC      diode      (76.2 33.02)          R90
+D15                     DO214AC      diode      (81.28 33.02)         R90
+D16                     DO214AC      diode      (86.36 33.02)         R90
+D17                     DO214AC      diode      (91.44 33.02)         R90
+GND      PTR1PAD1-17    P1-17        testpad    (54.9275 76.2)        R180
+JP1                     2X14         pinhead    (2.54 60.96)          R270
+LED1                    1206         led        (61.2775 76.5175)     R180
+LED2                    1206         led        (77.724 76.454)       R180
+Q1       RTR040N03      TSMT3        eigene     (15.24 39.37)         R180
+Q2       RTR040N03      TSMT3        eigene     (20.32 39.37)         R180
+Q3       RTR040N03      TSMT3        eigene     (25.4 39.37)          R180
+Q4       RTR040N03      TSMT3        eigene     (30.48 39.37)         R180
+Q5       RTR040N03      TSMT3        eigene     (35.56 39.37)         R180
+Q6       RTR040N03      TSMT3        eigene     (40.64 39.37)         R180
+Q7       RTR040N03      TSMT3        eigene     (45.72 39.37)         R180
+Q8       RTR040N03      TSMT3        eigene     (50.8 39.37)          R180
+Q9       RTR040N03      TSMT3        eigene     (55.88 39.37)         R180
+Q10      RTR040N03      TSMT3        eigene     (60.96 39.37)         R180
+Q11      RTR040N03      TSMT3        eigene     (66.04 39.37)         R180
+Q12      RTR040N03      TSMT3        eigene     (71.12 39.37)         R180
+Q13      RTR040N03      TSMT3        eigene     (76.2 39.37)          R180
+Q14      RTR040N03      TSMT3        eigene     (81.28 39.37)         R180
+Q15      RTR040N03      TSMT3        eigene     (86.36 39.37)         R180
+Q16      RTR040N03      TSMT3        eigene     (91.44 39.37)         R180
+R1       470R           M0805        rcl        (66.9925 76.5175)     R0
+R2       470R           M0805        rcl        (83.185 76.5175)      R0
+R3       47k            R0805        rcl        (17.78 68.58)         R0
+R4       33R            R1206        rcl        (19.05 57.15)         R270
+R5       33R            R1206        rcl        (16.51 50.8)          R270
+R6       47k            R0805        rcl        (22.86 68.58)         R0
+R7       33R            R1206        rcl        (24.13 57.15)         R270
+R8       33R            R1206        rcl        (21.59 50.8)          R270
+R9       47k            R0805        rcl        (27.94 68.58)         R0
+R10      33R            R1206        rcl        (29.21 57.15)         R270
+R11      33R            R1206        rcl        (26.67 50.8)          R270
+R12      47k            R0805        rcl        (33.02 68.58)         R0
+R13      33R            R1206        rcl        (34.29 57.15)         R270
+R14      33R            R1206        rcl        (31.75 50.8)          R270
+R15      47k            R0805        rcl        (38.1 68.58)          R0
+R16      33R            R1206        rcl        (39.37 57.15)         R270
+R17      33R            R1206        rcl        (36.83 50.8)          R270
+R18      47k            R0805        rcl        (43.18 68.58)         R0
+R19      33R            R1206        rcl        (44.45 57.15)         R270
+R20      33R            R1206        rcl        (41.91 50.8)          R270
+R21      47k            R0805        rcl        (48.26 68.58)         R0
+R22      33R            R1206        rcl        (49.53 57.15)         R270
+R23      33R            R1206        rcl        (46.99 50.8)          R270
+R24      47k            R0805        rcl        (53.34 68.58)         R0
+R25      33R            R1206        rcl        (54.61 57.15)         R270
+R26      33R            R1206        rcl        (52.07 50.8)          R270
+R27      47k            R0805        rcl        (58.42 68.58)         R0
+R28      33R            R1206        rcl        (59.69 57.15)         R270
+R29      33R            R1206        rcl        (57.15 50.8)          R270
+R30      47k            R0805        rcl        (63.5 68.58)          R0
+R31      33R            R1206        rcl        (64.77 57.15)         R270
+R32      33R            R1206        rcl        (62.23 50.8)          R270
+R33      47k            R0805        rcl        (68.58 68.58)         R0
+R34      33R            R1206        rcl        (69.85 57.15)         R270
+R35      33R            R1206        rcl        (67.31 50.8)          R270
+R36      47k            R0805        rcl        (73.66 68.58)         R0
+R37      33R            R1206        rcl        (74.93 57.15)         R270
+R38      33R            R1206        rcl        (72.39 50.8)          R270
+R39      47k            R0805        rcl        (78.74 68.58)         R0
+R40      33R            R1206        rcl        (80.01 57.15)         R270
+R41      33R            R1206        rcl        (77.47 50.8)          R270
+R42      47k            R0805        rcl        (83.82 68.58)         R0
+R43      33R            R1206        rcl        (85.09 57.15)         R270
+R44      33R            R1206        rcl        (82.55 50.8)          R270
+R45      47k            R0805        rcl        (88.9 68.58)          R0
+R46      33R            R1206        rcl        (90.17 57.15)         R270
+R47      33R            R1206        rcl        (87.63 50.8)          R270
+R48      47k            R0805        rcl        (93.98 68.58)         R0
+R49      33R            R1206        rcl        (95.25 57.15)         R270
+R50      33R            R1206        rcl        (92.71 50.8)          R270
+U1       LD1085TO220S   TO220S       v-reg-mich (-0.635 34.925)       R90
+U2       ZXGD3002E6     SOT23-6      eigene     (19.05 64.77)         R180
+U3       ZXGD3002E6     SOT23-6      eigene     (24.13 64.77)         R180
+U4       ZXGD3002E6     SOT23-6      eigene     (29.21 64.77)         R180
+U5       ZXGD3002E6     SOT23-6      eigene     (34.29 64.77)         R180
+U6       ZXGD3002E6     SOT23-6      eigene     (39.37 64.77)         R180
+U7       ZXGD3002E6     SOT23-6      eigene     (44.45 64.77)         R180
+U8       ZXGD3002E6     SOT23-6      eigene     (49.53 64.77)         R180
+U9       ZXGD3002E6     SOT23-6      eigene     (54.61 64.77)         R180
+U10      ZXGD3002E6     SOT23-6      eigene     (59.69 64.77)         R180
+U11      ZXGD3002E6     SOT23-6      eigene     (64.77 64.77)         R180
+U12      ZXGD3002E6     SOT23-6      eigene     (69.85 64.77)         R180
+U13      ZXGD3002E6     SOT23-6      eigene     (74.93 64.77)         R180
+U14      ZXGD3002E6     SOT23-6      eigene     (80.01 64.77)         R180
+U15      ZXGD3002E6     SOT23-6      eigene     (85.09 64.77)         R180
+U16      ZXGD3002E6     SOT23-6      eigene     (90.17 64.77)         R180
+U17      ZXGD3002E6     SOT23-6      eigene     (95.25 64.77)         R180
+VDD      PTR1PAD1-17    P1-17        testpad    (87.63 76.2)          R180
+VIN      PTR1PAD1-17    P1-17        testpad    (72.0725 76.2)        R180
+X1       MULTISOCK16    MULTISOCK_16 eigene     (13.97 0)             R0
+X2       MULTISOCK16    MULTISOCK_16 eigene     (97.79 27.94)         R180
+X3       MULTISOCK_2    MULTISOCK_2  eigene     (12.7 24.13)          R180
+X4       MULTISOCK_2    MULTISOCK_2  eigene     (7.62 3.81)           R0
