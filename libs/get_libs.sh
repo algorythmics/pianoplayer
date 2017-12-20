@@ -1,7 +1,7 @@
 #!/bin/sh
 cd $(dirname $0)
 
-needed_libs="escher escherFET16 escherOS pde pdpp"
+needed_libs="pde pdpp"
 
 base_path=algorythmics/
 
