@@ -1,6 +1,5 @@
 MAC-ADDRESSES for ESCHER DSP.
 
-
 MAC-Addresses have to be assigned by programming with tcp/ip stack or other 
 software using the ethernet port on ESCHER DSP board.
 
